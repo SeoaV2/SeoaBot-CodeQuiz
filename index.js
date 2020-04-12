@@ -31,6 +31,10 @@ class CodeQuiz {
     else return dbData[0].score
   }
 
+  async getLeaderboard () {
+    return await this.client.db('user').select('*').orderBy('score', 'desc')
+  }
+
   async addScore (n, id) {
     let dbData
     try {
