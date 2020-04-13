@@ -32,7 +32,7 @@ class CodeQuiz {
   }
 
   async getLeaderboard () {
-    return await this.client.db('user').select('*').orderBy('score', 'desc')
+    return await this.client.db('user').select('*').orderBy('score', 'desc').limit(31)
   }
 
   async addScore (n, id) {
@@ -49,6 +49,8 @@ class CodeQuiz {
       try {
         await this.client.db('user').insert({ id, score: 0 })
       } catch (err) { console.error(err.stack) }
+
+      dbData[0].score = 0
     }
 
     const score = dbData[0].score + n
