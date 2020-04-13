@@ -25,10 +25,10 @@ class CodeQuiz {
   async getScore (id) {
     let dbData
     try {
-      dbData = await this.client.db('user').select('score').where('id', id)
+      dbData = await this.client.db('user').select('score', 'solve').where('id', id)
     } catch (err) { console.error(err.stack); return fallback[id] || 0 }
     if (dbData.length < 1) return 0
-    else return dbData[0].score
+    else return dbData[0]
   }
 
   async getLeaderboard () {
@@ -38,25 +38,27 @@ class CodeQuiz {
   async addScore (n, id) {
     let dbData
     try {
-      dbData = await this.client.db('user').select('score').where('id', id)
+      dbData = await this.client.db('user').select('score', 'solved').where('id', id)
     } catch (err) {
       console.error(err.stack)
-      if (!fallback[id]) fallback[id] = 0
+      if (!fallback[id]) fallback[id] = {}
       dbData = [fallback[id]]
     }
 
     if (dbData.length < 1) {
       try {
-        await this.client.db('user').insert({ id, score: 0 })
+        await this.client.db('user').insert({ id, score: 0, solved: 0 })
       } catch (err) { console.error(err.stack) }
 
       dbData[0].score = 0
+      dbData[0].solved = 0
     }
 
     const score = dbData[0].score + n
+    const solved = dbData[0].solved + 1
 
     try {
-      await this.client.db('user').update({ score }).where('id', id)
+      await this.client.db('user').update({ score, solved }).where('id', id)
     } catch (err) { console.error(err.stack) }
 
     return score
